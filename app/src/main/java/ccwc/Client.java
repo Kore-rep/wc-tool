@@ -3,69 +3,56 @@
  */
 package ccwc;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.stream.Collectors;
 
 import org.apache.commons.cli.*;
 
 public class Client {
-    public static int getNumBytes(byte[] data) {
-        return data.length;
-        // int byteCount = 0;
-        // for (String line : data) {
-        // byteCount += line.getBytes().length;
-        // }
-        // return byteCount;
+    final static String cmdLineUsage = "ccwc [OPTIONS]... [FILE]...";
+    final static String helpHeader = "Get the newline, word and bytecounts for each FILE\r\n\n";
+    final static String helpFooter = "\nWhere no OPTIONS are provided, newline, word and byte-count will be returned by default.\nWhere no FILEs are provided, input will be read from StdIn \n\nAuthor: Angus Longmore.\nhttps://github.com/kore-rep/wc-tool";
+    static HelpFormatter helpFormatter;
+    static Options options;
+
+    public static int getNumBytes(String data) {
+        return data.getBytes().length;
     }
 
-    public static int getNumLines(List<String> data) {
-        return data.size();
+    public static int getNumLines(String data) {
+        return data.split("\n").length;
     }
 
-    public static int getNumChars(List<String> data) {
-        int charCount = 0;
-        for (String line : data) {
-            charCount += line.length();
-        }
-        return charCount;
+    public static int getNumChars(String data) {
+        return data.length();
     }
 
-    public static int getNumWords(List<String> data) {
-        int wordCount = 0;
-        StringTokenizer st;
-        for (String line : data) {
-            st = new StringTokenizer(line);
-            wordCount += st.countTokens();
-        }
-        return wordCount;
+    public static int getNumWords(String data) {
+        StringTokenizer st = new StringTokenizer(data);
+        return st.countTokens();
+    }
+
+    public static void printGenericHelp() {
+        helpFormatter.printHelp(cmdLineUsage, helpHeader, options, helpFooter);
     }
 
     public static String getRequiredResponse(boolean requireBytes, boolean requireChars, boolean requireWords,
             boolean requireLines,
             boolean noOptions,
-            String targetFilePath) {
+            String targetData, String filename) {
 
-        List<String> targetData = new ArrayList<>();
-        byte[] targetBytes;
-
-        try {
-            targetData = Files.readAllLines(Paths.get(targetFilePath));
-            targetBytes = Files.readAllBytes(Paths.get(targetFilePath));
-        } catch (IOException e) {
-            System.out.println("Unable to find file " + targetFilePath);
-            System.exit(1);
-            return null;
-        }
         StringBuilder sb = new StringBuilder();
         sb.append("  ");
         if (noOptions) {
             sb.append(getNumLines(targetData) + " ");
             sb.append(getNumWords(targetData) + " ");
-            sb.append(getNumBytes(targetBytes) + " ");
+            sb.append(getNumBytes(targetData) + " ");
         } else {
             if (requireLines) {
                 sb.append(getNumLines(targetData) + " ");
@@ -77,51 +64,80 @@ public class Client {
                 sb.append(getNumChars(targetData) + " ");
             }
             if (requireBytes) {
-                sb.append(getNumBytes(targetBytes) + " ");
+                sb.append(getNumBytes(targetData) + " ");
             }
         }
-        sb.append(targetFilePath);
+        sb.append(filename);
         return sb.toString();
     }
 
-    public static CommandLine parseCommandLine(String[] args, Options options, HelpFormatter formatter) {
+    public static String getFileData(String filepath) {
+        try {
+            return Files.readString(Paths.get(filepath));
+        } catch (IOException e) {
+            System.out.println("Unable to open file " + filepath);
+            printGenericHelp();
+            System.exit(1);
+            return null;
+        }
+    }
+
+    public static String getStdInData() {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        return reader.lines().collect(Collectors.joining("\n"));
+    }
+
+    public static CommandLine parseCommandLine(String[] args) {
         CommandLineParser parser = new DefaultParser();
         try {
             CommandLine cmd = parser.parse(options, args);
             return cmd;
         } catch (ParseException e) {
             System.out.println(e.getMessage());
-            formatter.printHelp("CCWC", options);
+            printGenericHelp();
             System.exit(1);
             return null;
         }
     }
 
-    public static Options generateOptions() {
-        Options options = new Options();
-        options.addOption("c", "bytes", false, "print the byte count.");
+    public static void generateOptions() {
+        options = new Options();
+        options.addOption("c", "bytes", false, "print the byte count");
         options.addOption("m", "chars", false, "print the character count");
-        options.addOption("w", "words", false, "print the word count.");
-        options.addOption("l", "lines", false, "print the newline count.");
-
-        return options;
+        options.addOption("w", "words", false, "print the word count");
+        options.addOption("l", "lines", false, "print the newline count");
+        options.addOption("h", "help", false, "print help");
     }
 
     public static void main(String[] args) {
-        Options options = generateOptions();
-        HelpFormatter formatter = new HelpFormatter();
+        generateOptions();
+        helpFormatter = new HelpFormatter();
 
-        CommandLine cmd = parseCommandLine(args, options, formatter);
-
+        CommandLine cmd = parseCommandLine(args);
+        if (cmd.hasOption("help")) {
+            printGenericHelp();
+            System.exit(0);
+        }
         boolean requireBytes = cmd.hasOption("bytes");
         boolean requireChars = cmd.hasOption("chars");
         boolean requireWords = cmd.hasOption("words");
         boolean requireLines = cmd.hasOption("lines");
         boolean noOptions = cmd.getOptions().length == 0 ? true : false;
+        List<String> plainArgs = cmd.getArgList();
 
-        String targetFile = cmd.getArgs()[0];
-        String output = getRequiredResponse(requireBytes, requireChars, requireWords, requireLines, noOptions,
-                targetFile);
-        System.out.println(output);
+        if (plainArgs.isEmpty()) {
+            String output = getRequiredResponse(requireBytes, requireChars, requireWords, requireLines, noOptions,
+                    getStdInData(), "StdIn");
+            System.out.println(output);
+            System.exit(0);
+        }
+
+        for (String file : plainArgs) {
+            String output = getRequiredResponse(requireBytes, requireChars, requireWords, requireLines, noOptions,
+                    getFileData(file), file);
+            System.out.println(output + "\n");
+        }
+        System.exit(0);
+
     }
 }
