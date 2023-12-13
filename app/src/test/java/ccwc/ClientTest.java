@@ -32,6 +32,7 @@ public class ClientTest {
 
     @Test
     public void appGeneratesOptions() {
+        Client.options = null; // Ensure options are empty before calling method
         assertNull(Client.options);
         Client.generateOptions();
         assertNotNull(Client.options);
@@ -134,7 +135,6 @@ public class ClientTest {
 
     @Test
     public void mainReturnsHelp_WhenOnlyOption() throws UnsupportedEncodingException {
-        System.setSecurityManager(new NoExitSecurityManager());
         MockedStatic<Client> mockedStatic = mockStatic(Client.class);
         mockedStatic.when(() -> Client.printGenericHelp());
         try {
@@ -149,16 +149,11 @@ public class ClientTest {
 
     @Test
     public void mainReturnsBytes_WhenOnlyOption() throws UnsupportedEncodingException {
-        System.setSecurityManager(new NoExitSecurityManager());
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         final String utf8 = StandardCharsets.UTF_8.name();
         PrintStream ps = new PrintStream(baos, true, utf8);
         System.setOut(ps);
-        try {
-            Client.main(new String[] { "-c", "./src/test/resources/test.txt" });
-        } catch (RuntimeException e) {
-            // Catch to prevent System.exit() being called in the method.
-        }
+        Client.main(new String[] { "-c", "./src/test/resources/test.txt" });
         String data = baos.toString(utf8);
         String expected = "  342190 ./src/test/resources/test.txt\n";
         assertEquals(expected, data);
@@ -167,16 +162,11 @@ public class ClientTest {
 
     @Test
     public void mainReturnsCharacters_WhenOnlyOption() throws UnsupportedEncodingException {
-        System.setSecurityManager(new NoExitSecurityManager());
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         final String utf8 = StandardCharsets.UTF_8.name();
         PrintStream ps = new PrintStream(baos, true, utf8);
         System.setOut(ps);
-        try {
-            Client.main(new String[] { "-m", "./src/test/resources/test.txt" });
-        } catch (RuntimeException e) {
-            // Catch to prevent System.exit() being called in the method.
-        }
+        Client.main(new String[] { "-m", "./src/test/resources/test.txt" });
         String data = baos.toString(utf8);
         String expected = "  339292 ./src/test/resources/test.txt\n";
         assertEquals(expected, data);
@@ -184,16 +174,11 @@ public class ClientTest {
 
     @Test
     public void mainReturnsWords_WhenOnlyOption() throws UnsupportedEncodingException {
-        System.setSecurityManager(new NoExitSecurityManager());
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         final String utf8 = StandardCharsets.UTF_8.name();
         PrintStream ps = new PrintStream(baos, true, utf8);
         System.setOut(ps);
-        try {
-            Client.main(new String[] { "-w", "./src/test/resources/test.txt" });
-        } catch (RuntimeException e) {
-            // Catch to prevent System.exit() being called in the method.
-        }
+        Client.main(new String[] { "-w", "./src/test/resources/test.txt" });
         String data = baos.toString(utf8);
         String expected = "  58164 ./src/test/resources/test.txt\n";
         assertEquals(expected, data);
@@ -201,16 +186,11 @@ public class ClientTest {
 
     @Test
     public void mainReturnsLines_WhenOnlyOption() throws UnsupportedEncodingException {
-        System.setSecurityManager(new NoExitSecurityManager());
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         final String utf8 = StandardCharsets.UTF_8.name();
         PrintStream ps = new PrintStream(baos, true, utf8);
         System.setOut(ps);
-        try {
-            Client.main(new String[] { "-l", "./src/test/resources/test.txt" });
-        } catch (RuntimeException e) {
-            // Catch to prevent System.exit() being called in the method.
-        }
+        Client.main(new String[] { "-l", "./src/test/resources/test.txt" });
         String data = baos.toString(utf8);
         String expected = "  7145 ./src/test/resources/test.txt\n";
         assertEquals(expected, data);

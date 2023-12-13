@@ -129,7 +129,6 @@ public class Client {
             String output = getRequiredResponse(requireBytes, requireChars, requireWords, requireLines, noOptions,
                     getStdInData(), "StdIn");
             System.out.println(output);
-            System.exit(0);
         }
 
         for (String file : plainArgs) {
@@ -137,7 +136,6 @@ public class Client {
                     getFileData(file), file);
             System.out.println(output);
         }
-        System.exit(0);
 
     }
 }
