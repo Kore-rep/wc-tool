@@ -29,6 +29,12 @@ dependencies {
     
 }
 
+if (hasProperty('buildScan')) {
+    buildScan {
+        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+        termsOfServiceAgree = 'yes'
+    }
+}
 
 
 // Apply a specific Java toolchain to ease working on different environments.
