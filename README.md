@@ -1,5 +1,7 @@
 # WC Tool
 
+[![Java CI with Gradle](https://github.com/Kore-rep/wc-tool/actions/workflows/gradle.yml/badge.svg)](https://github.com/Kore-rep/wc-tool/actions/workflows/gradle.yml)
+
 ## Overview
 A tool written in java to be a clone the of Unix tool wc.
 From [Coding Challenges](https://codingchallenges.fyi/challenges/challenge-wc)
