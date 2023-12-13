@@ -11,4 +11,4 @@ plugins {
 }
 
 rootProject.name = 'ccwc'
-include('app')
+include('ccwc')
