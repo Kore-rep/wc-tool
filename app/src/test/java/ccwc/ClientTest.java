@@ -25,9 +25,19 @@ import static org.mockito.Mockito.*;
 
 public class ClientTest {
 
+    final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    final String utf8 = StandardCharsets.UTF_8.name();
+
     @Before
     public void init() {
+        // Reset StdOut
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
+        Client.options = null;
+    }
+
+    public void assignStdOutForCapture() throws IOException {
+        PrintStream ps = new PrintStream(baos, true, utf8);
+        System.setOut(ps);
     }
 
     @Test
@@ -145,14 +155,12 @@ public class ClientTest {
         mockedStatic.verify(
                 () -> Client.printGenericHelp(),
                 times(1));
+        mockedStatic.close();
     }
 
     @Test
-    public void mainReturnsBytes_WhenOnlyOption() throws UnsupportedEncodingException {
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        final String utf8 = StandardCharsets.UTF_8.name();
-        PrintStream ps = new PrintStream(baos, true, utf8);
-        System.setOut(ps);
+    public void mainReturnsBytes_WhenOnlyOption() throws IOException {
+        assignStdOutForCapture();
         Client.main(new String[] { "-c", "./src/test/resources/test.txt" });
         String data = baos.toString(utf8);
         String expected = "  342190 ./src/test/resources/test.txt\n";
@@ -161,11 +169,8 @@ public class ClientTest {
     }
 
     @Test
-    public void mainReturnsCharacters_WhenOnlyOption() throws UnsupportedEncodingException {
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        final String utf8 = StandardCharsets.UTF_8.name();
-        PrintStream ps = new PrintStream(baos, true, utf8);
-        System.setOut(ps);
+    public void mainReturnsCharacters_WhenOnlyOption() throws IOException {
+        assignStdOutForCapture();
         Client.main(new String[] { "-m", "./src/test/resources/test.txt" });
         String data = baos.toString(utf8);
         String expected = "  339292 ./src/test/resources/test.txt\n";
@@ -173,11 +178,8 @@ public class ClientTest {
     }
 
     @Test
-    public void mainReturnsWords_WhenOnlyOption() throws UnsupportedEncodingException {
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        final String utf8 = StandardCharsets.UTF_8.name();
-        PrintStream ps = new PrintStream(baos, true, utf8);
-        System.setOut(ps);
+    public void mainReturnsWords_WhenOnlyOption() throws IOException {
+        assignStdOutForCapture();
         Client.main(new String[] { "-w", "./src/test/resources/test.txt" });
         String data = baos.toString(utf8);
         String expected = "  58164 ./src/test/resources/test.txt\n";
@@ -185,11 +187,8 @@ public class ClientTest {
     }
 
     @Test
-    public void mainReturnsLines_WhenOnlyOption() throws UnsupportedEncodingException {
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        final String utf8 = StandardCharsets.UTF_8.name();
-        PrintStream ps = new PrintStream(baos, true, utf8);
-        System.setOut(ps);
+    public void mainReturnsLines_WhenOnlyOption() throws IOException {
+        assignStdOutForCapture();
         Client.main(new String[] { "-l", "./src/test/resources/test.txt" });
         String data = baos.toString(utf8);
         String expected = "  7145 ./src/test/resources/test.txt\n";
