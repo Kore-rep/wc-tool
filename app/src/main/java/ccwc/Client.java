@@ -17,8 +17,8 @@ import org.apache.commons.cli.*;
 public class Client {
     final static String cmdLineUsage = "ccwc [OPTIONS]... [FILE]...";
     final static String helpHeader = "Get the newline, word and bytecounts for each FILE\r\n\n";
-    final static String helpFooter = "\nWhere no OPTIONS are provided, newline, word and byte-count will be returned by default.\nWhere no FILEs are provided, input will be read from StdIn \n\nAuthor: Angus Longmore.\nhttps://github.com/kore-rep/wc-tool";
-    static HelpFormatter helpFormatter;
+    final static String helpFooter = "\nWhere no OPTIONS are provided, newline, word and byte-count will be returned by default.\nWhere no FILEs are provided, input will be read from StdIn\n\nAuthor: Angus Longmore.\nhttps://github.com/kore-rep/wc-tool";
+    static HelpFormatter helpFormatter = new HelpFormatter();
     static Options options;
 
     public static int getNumBytes(String data) {
@@ -35,7 +35,8 @@ public class Client {
 
     public static int getNumWords(String data) {
         StringTokenizer st = new StringTokenizer(data);
-        return st.countTokens();
+        int count = st.countTokens();
+        return count;
     }
 
     public static void printGenericHelp() {
@@ -111,7 +112,6 @@ public class Client {
 
     public static void main(String[] args) {
         generateOptions();
-        helpFormatter = new HelpFormatter();
 
         CommandLine cmd = parseCommandLine(args);
         if (cmd.hasOption("help")) {
@@ -135,7 +135,7 @@ public class Client {
         for (String file : plainArgs) {
             String output = getRequiredResponse(requireBytes, requireChars, requireWords, requireLines, noOptions,
                     getFileData(file), file);
-            System.out.println(output + "\n");
+            System.out.println(output);
         }
         System.exit(0);
 

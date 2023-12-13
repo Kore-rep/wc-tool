@@ -24,9 +24,12 @@ dependencies {
 
     // https://mvnrepository.com/artifact/commons-cli/commons-cli
     implementation 'commons-cli:commons-cli:1.6.0'
-
+    testImplementation "org.mockito:mockito-core:5.8.0+";
+    testImplementation "org.mockito:mockito-inline:5.2.0";
     
 }
+
+
 
 // Apply a specific Java toolchain to ease working on different environments.
 java {
@@ -38,13 +41,4 @@ java {
 application {
     // Define the main class for the application.
     mainClass = 'ccwc.Client'
-}
-
-task runw {
-    doLast {
-        exec {
-            workingDir "${buildDir}"
-            executable './gradlew run --args="-c text.txt"'
-        }
-    }
 }
